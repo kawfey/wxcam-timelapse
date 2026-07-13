@@ -1,0 +1,16 @@
+[project]
+name = "wxcam-timelapse"
+version = "0.0.1"
+description = "Capture webcam stills, overlay timestamps, and build daily timelapses with a browser viewer."
+requires-python = ">=3.11"
+dependencies = [
+    "pillow>=10",      # burn datetime + title overlay onto stills
+    "httpx>=0.27",     # fetch stills (direct JPEG)
+    "apscheduler>=3.10", # capture + nightly-rollup scheduling
+    "fastapi>=0.110",  # serve stills + /frames window API
+    "uvicorn>=0.29",   # ASGI server
+]
+# ffmpeg is an external system dependency (frame extraction + timelapse encode).
+
+[tool.wxcam]
+# see config/settings.toml for runtime config

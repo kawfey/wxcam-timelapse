@@ -1,0 +1,20 @@
+# wxcam-timelapse runtime config. See docs/plan.md.
+
+[capture]
+# MVP: one still camera. Name must match a row in config/cameras.csv.
+mvp_camera = "MO DNR Pollution Cam (St. Marys)"
+interval_s = 60          # match the source's real update rate (DNR ~60s)
+cache_bust = true        # append ?_t= so in-place-updated stills fetch fresh
+dedup_identical = true   # skip saving a frame identical to the previous one
+
+[retention]
+retain_hours = 48        # rolling stills window (y)
+retain_days = 30         # timelapse archive (z)
+
+[rollup]
+fps = 60                 # daily timelapse output frame rate
+rollup_time = "00:05"    # local time to build the previous day's timelapse
+
+[general]
+timezone = "America/Chicago"   # overlay + daily boundary (Central for STL cams)
+data_dir = "data"              # stills/ and timelapses/ live here (gitignored)
