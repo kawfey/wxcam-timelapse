@@ -1,0 +1,34 @@
+# Home Assistant add-on manifest. Docs: https://developers.home-assistant.io/docs/add-ons/configuration
+name: wxcam Timelapse
+version: "0.1.0"
+slug: wxcam_timelapse
+description: Capture webcam stills on a schedule, build daily timelapses, and play them back in the browser.
+url: https://github.com/kawfey/wxcam-timelapse
+# Pi (HAOS) is aarch64; amd64/armv7 included so it also builds on other hosts.
+arch:
+  - aarch64
+  - amd64
+  - armv7
+# The HA base image ships its own s6 init; don't let Supervisor add another.
+init: false
+# Expose the viewer + API. Visit http://<ha-host>:8848 once running.
+ports:
+  8848/tcp: 8848
+ports_description:
+  8848/tcp: Web viewer + JSON API
+# Read/write HA's shared media dir so the stills + timelapses are browsable in
+# HA's Media panel and reusable by the webcam dashboard. data_dir points here.
+map:
+  - media:rw
+options:
+  interval_s: 60
+  retain_hours: 48
+  retain_days: 30
+  timezone: America/Chicago
+  data_dir: /media/wxcam-timelapse
+schema:
+  interval_s: int(5,)
+  retain_hours: int(1,)
+  retain_days: int(1,)
+  timezone: str
+  data_dir: str

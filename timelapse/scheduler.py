@@ -75,16 +75,15 @@ def do_prune() -> None:
         log.info("prune: %s removed %s", cam.slug, store.prune(settings, cam.slug))
 
 
-def do_run() -> None:
-    from apscheduler.schedulers.blocking import BlockingScheduler
+def add_jobs(sched, settings) -> list[Camera]:
+    """Register the capture (interval) + nightly-rollup (cron) jobs on `sched`.
+    Shared by the CLI's BlockingScheduler and the API's in-process
+    BackgroundScheduler so both behave identically. Returns the cameras covered."""
     from apscheduler.triggers.cron import CronTrigger
     from apscheduler.triggers.interval import IntervalTrigger
 
-    settings = load_settings()
     cams = capturable_cameras()
     hh, mm = (int(x) for x in settings.rollup_time.split(":"))
-
-    sched = BlockingScheduler(timezone=settings.timezone)
     sched.add_job(
         do_capture,
         IntervalTrigger(seconds=settings.interval_s),
@@ -103,6 +102,15 @@ def do_run() -> None:
         len(cams), ", ".join(c.slug for c in cams),
         settings.interval_s, settings.rollup_time, settings.timezone,
     )
+    return cams
+
+
+def do_run() -> None:
+    from apscheduler.schedulers.blocking import BlockingScheduler
+
+    settings = load_settings()
+    sched = BlockingScheduler(timezone=settings.timezone)
+    add_jobs(sched, settings)
     try:
         sched.start()
     except (KeyboardInterrupt, SystemExit):
