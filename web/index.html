@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>wxcam-timelapse — viewer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>wxcam&nbsp;timelapse</h1>
+    <div class="cam-picker">
+      <label for="cam">Camera</label>
+      <select id="cam"></select>
+    </div>
+  </header>
+
+  <main>
+    <div class="stage">
+      <img id="frame" alt="timelapse frame" />
+      <div id="stage-msg" class="stage-msg">Loading…</div>
+    </div>
+
+    <div class="scrubber">
+      <input id="seek" type="range" min="0" max="0" value="0" step="1" />
+      <div class="scrubber-labels">
+        <span class="scrubber-pos"><span id="pos">0</span><span id="count">/ 0 frames</span></span>
+        <span class="scrubber-ts" id="ts">—</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="play" class="primary" aria-label="play/pause">▶︎</button>
+
+      <div class="control-group">
+        <label for="window">Window</label>
+        <select id="window">
+          <option value="1">1 h</option>
+          <option value="3">3 h</option>
+          <option value="6">6 h</option>
+          <option value="12" selected>12 h</option>
+          <option value="24">24 h</option>
+          <option value="48">48 h</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="speed">Speed</label>
+        <select id="speed">
+          <option value="6">6 fps</option>
+          <option value="12">12 fps</option>
+          <option value="24" selected>24 fps</option>
+          <option value="48">48 fps</option>
+          <option value="60">60 fps</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="loop">Repeat</label>
+        <select id="loop">
+          <option value="loop" selected>Loop</option>
+          <option value="once">Play once</option>
+        </select>
+      </div>
+
+      <button id="reload" class="ghost">↻ Refresh</button>
+    </div>
+
+    <p class="meta"><span id="meta">—</span></p>
+  </main>
+
+  <script src="viewer.js"></script>
+</body>
+</html>

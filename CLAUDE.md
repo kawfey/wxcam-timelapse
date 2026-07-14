@@ -5,8 +5,15 @@ datetime + title overlay, keep a rolling window, auto-assemble a daily timelapse
 and play recent stills back in the browser at an adjustable speed (plus a future
 exporter). Any camera can be used; **the STL set is just what we start with.**
 
-**Status: scaffold only — nothing is implemented yet.** The approved MVP plan is
-in [`docs/plan.md`](docs/plan.md). Build it there.
+**Status: MVP implemented and expanded to all direct-JPEG stills** (19 cameras:
+MO DNR + 18 KMOV Ford Skycam), end-to-end. The approved plan is in
+[`docs/plan.md`](docs/plan.md); the deferred/post-MVP items there (stream capture,
+exporter, etc.) are the remaining roadmap. Run it with the venv:
+`.venv/bin/python -m timelapse.scheduler run` (capture loop + nightly rollup) and
+`.venv/bin/uvicorn timelapse.api:app --port 8848` (viewer + API). Requires Python
+3.11+ (repo venv is 3.13) and ffmpeg. Cameras captured are auto-discovered from
+`config/cameras.csv` via `config.capturable_cameras()` (`type=still_image`,
+`status=live`) — add a row there and it's picked up automatically, no code change.
 
 ## Provenance
 Spun off from the **stl-webcams dashboard** (github.com/kawfey/stl-webcam-dashboard,
@@ -15,8 +22,10 @@ from that dashboard's `data/cameras.csv` — same schema. Columns that matter he
 `name`, `page_url`, `stream_url`, `type`, `render`, `status`, `notes`.
 
 ## MVP
-One camera, stills-only, local, Python + ffmpeg. MVP camera = **MO DNR Pollution
-Cam (St. Marys)** — a `still_image` (direct JPEG), updates ~60 s.
+Stills-only, local, Python + ffmpeg. All 19 `still_image`/`live` cameras in
+`cameras.csv` are captured on one shared interval (currently 60 s): **MO DNR
+Pollution Cam (St. Marys)** (updates ~60 s) + 18 **KMOV Ford Skycam** JPEGs
+(update in place, ~minutes cadence). Dedup-by-hash absorbs the cadence mismatch.
 
 ## Key architecture (don't lose this)
 The **rolling viewer plays stored JPEGs client-side** (cycle `<img>` over a window at
