@@ -5,8 +5,11 @@ datetime + title overlay, keep a rolling window, auto-assemble a daily timelapse
 and play recent stills back in the browser at an adjustable speed (plus a future
 exporter). Any camera can be used; **the STL set is just what we start with.**
 
-**Status: scaffold only — nothing is implemented yet.** The approved MVP plan is
-in [`docs/plan.md`](docs/plan.md). Build it there.
+**Status: MVP implemented** (single still camera, end-to-end). The approved plan
+is in [`docs/plan.md`](docs/plan.md); the deferred/post-MVP items there are the
+remaining roadmap. Run it with the venv: `.venv/bin/python -m timelapse.scheduler
+run` (capture loop + nightly rollup) and `.venv/bin/uvicorn timelapse.api:app
+--port 8848` (viewer + API). Requires Python 3.11+ (repo venv is 3.13) and ffmpeg.
 
 ## Provenance
 Spun off from the **stl-webcams dashboard** (github.com/kawfey/stl-webcam-dashboard,

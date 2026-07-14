@@ -12,5 +12,12 @@ dependencies = [
 ]
 # ffmpeg is an external system dependency (frame extraction + timelapse encode).
 
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["timelapse"]
+
 [tool.wxcam]
 # see config/settings.toml for runtime config

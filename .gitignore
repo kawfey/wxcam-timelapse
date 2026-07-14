@@ -7,6 +7,10 @@ __pycache__/
 .venv/
 venv/
 .env
+*.egg-info/
+
+# local editor/harness settings (keep launch.json shared)
+.claude/settings.local.json
 
 # os / editor
 .DS_Store
