@@ -8,22 +8,24 @@ arbitrary date ranges.
 Any camera works; it's seeded with the St. Louis set from the
 [stl-webcams dashboard](https://github.com/kawfey/stl-webcam-dashboard).
 
-> **Status: MVP built.** Single still camera, end-to-end — see [`docs/plan.md`](docs/plan.md)
-> for the plan/roadmap and [`CLAUDE.md`](CLAUDE.md) for camera capture quirks.
+> **Status: MVP built.** All 19 direct-JPEG still cameras (MO DNR + 18 KMOV), end-to-end
+> — see [`docs/plan.md`](docs/plan.md) for the plan/roadmap and [`CLAUDE.md`](CLAUDE.md)
+> for camera capture quirks.
 
 ## MVP
-One camera (MO DNR still cam), stills-only, running locally:
+All `still_image`/`live` cameras in `config/cameras.csv`, stills-only, running locally:
 capture → overlay → store → nightly timelapse → rolling browser viewer → prune.
 Python + ffmpeg. Runs on a Mac first; containerize for a Pi / cheap cloud later.
 
 ## Run it
 ```sh
 python3.13 -m venv .venv && .venv/bin/pip install -e .   # one-time (needs Python 3.11+, ffmpeg)
-.venv/bin/python -m timelapse.scheduler run              # capture loop + nightly rollup
+.venv/bin/python -m timelapse.scheduler run              # capture loop (all cameras) + nightly rollup
 .venv/bin/uvicorn timelapse.api:app --port 8848          # viewer at http://localhost:8848
 ```
-Handy one-offs: `python -m timelapse.scheduler capture` (one still),
-`… rollup [YYYY-MM-DD]` (build a day), `… prune` (run retention once).
+Handy one-offs: `python -m timelapse.scheduler capture [cam]` (one round; all
+cameras, or a single name/slug), `… rollup [YYYY-MM-DD] [cam]` (build a day),
+`… prune` (run retention once, all cameras).
 
 ## Layout
 ```

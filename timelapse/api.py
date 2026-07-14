@@ -14,7 +14,7 @@ from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import store
-from .config import REPO_ROOT, Camera, load_cameras, load_settings
+from .config import REPO_ROOT, Camera, capturable_cameras, load_cameras, load_settings
 
 settings = load_settings()
 _all_cameras = load_cameras()
@@ -23,7 +23,7 @@ app = FastAPI(title="wxcam-timelapse", version="0.1")
 
 
 def _still_cameras() -> list[Camera]:
-    return [c for c in _all_cameras if c.type == "still_image" and c.status == "live"]
+    return capturable_cameras(_all_cameras)
 
 
 def _camera_or_404(slug: str) -> Camera:

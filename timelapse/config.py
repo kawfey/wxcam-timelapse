@@ -39,7 +39,6 @@ class Camera:
 @dataclass(frozen=True)
 class Settings:
     # capture
-    mvp_camera: str
     interval_s: int
     cache_bust: bool
     dedup_identical: bool
@@ -113,6 +112,14 @@ def get_camera(name: str, cameras: list[Camera] | None = None) -> Camera:
     raise KeyError(f"camera not found in cameras.csv: {name!r}")
 
 
+def capturable_cameras(cameras: list[Camera] | None = None) -> list[Camera]:
+    """Cameras this MVP can actually capture: direct-JPEG stills that are live.
+    Everything else (hls_direct, wetmet_embed, dacast_embed, nest_embed, index
+    pages, ...) is deferred — see CLAUDE.md."""
+    cameras = cameras if cameras is not None else load_cameras()
+    return [c for c in cameras if c.type == "still_image" and c.status == "live"]
+
+
 def load_settings(path: Path | None = None) -> Settings:
     path = path or (CONFIG_DIR / "settings.toml")
     with path.open("rb") as f:
@@ -128,7 +135,6 @@ def load_settings(path: Path | None = None) -> Settings:
         data_dir = REPO_ROOT / data_dir
 
     return Settings(
-        mvp_camera=cap["mvp_camera"],
         interval_s=int(cap.get("interval_s", 60)),
         cache_bust=bool(cap.get("cache_bust", True)),
         dedup_identical=bool(cap.get("dedup_identical", True)),

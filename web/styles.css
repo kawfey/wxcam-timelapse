@@ -71,18 +71,6 @@ main {
   pointer-events: none;
 }
 
-.overlay-ts {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-variant-numeric: tabular-nums;
-  font-size: 13px;
-}
-
 .scrubber { margin: 16px 0 8px; }
 
 .scrubber input[type="range"] {
@@ -92,10 +80,19 @@ main {
 
 .scrubber-labels {
   display: flex;
-  gap: 6px;
+  justify-content: space-between;
+  align-items: baseline;
   color: var(--muted);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
+}
+
+.scrubber-pos { display: flex; gap: 6px; }
+
+.scrubber-ts {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 13px;
 }
 
 .controls {

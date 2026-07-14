@@ -1,9 +1,10 @@
 # wxcam-timelapse runtime config. See docs/plan.md.
 
 [capture]
-# MVP: one still camera. Name must match a row in config/cameras.csv.
-mvp_camera = "MO DNR Pollution Cam (St. Marys)"
-interval_s = 60          # match the source's real update rate (DNR ~60s)
+# Captures every camera in config/cameras.csv with type=still_image and
+# status=live (see config.capturable_cameras). One shared interval for all;
+# dedup-by-hash absorbs sources that update slower than this.
+interval_s = 60          # match the source's real update rate (~60s-5min)
 cache_bust = true        # append ?_t= so in-place-updated stills fetch fresh
 dedup_identical = true   # skip saving a frame identical to the previous one
 
