@@ -1,0 +1,6 @@
+# Marks this GitHub repo as a Home Assistant add-on repository. Add it in HA via
+# Settings -> Add-ons -> Add-on Store -> (top-right menu) Repositories, then paste
+# https://github.com/kawfey/wxcam-timelapse — the add-on(s) below appear in the store.
+name: wxcam-timelapse add-ons
+url: https://github.com/kawfey/wxcam-timelapse
+maintainer: kawfey <kawfey@users.noreply.github.com>

@@ -7,19 +7,61 @@ The viewer is pure client-side JPEG cycling, so the server's only jobs are:
 """
 from __future__ import annotations
 
+import logging
+import os
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from . import store
 from .config import REPO_ROOT, Camera, capturable_cameras, load_cameras, load_settings
 
+log = logging.getLogger("wxcam.api")
+
 settings = load_settings()
 _all_cameras = load_cameras()
 
-app = FastAPI(title="wxcam-timelapse", version="0.1")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Optionally run the capture + rollup scheduler inside this process.
+
+    Enabled by WXCAM_RUN_SCHEDULER (set by the Home Assistant add-on), so the
+    container is a single uvicorn process that both captures and serves. Left
+    unset for local dev, where `python -m timelapse.scheduler run` is separate."""
+    sched = None
+    if _env_truthy("WXCAM_RUN_SCHEDULER"):
+        from apscheduler.schedulers.background import BackgroundScheduler
+
+        from .scheduler import add_jobs
+
+        # uvicorn configures its own loggers but not the root logger, so our
+        # wxcam.* INFO logs would be dropped. Give root a handler so capture
+        # activity is visible in the add-on log.
+        if not logging.getLogger().handlers:
+            logging.basicConfig(
+                level=logging.INFO,
+                format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+            )
+        sched = BackgroundScheduler(timezone=settings.timezone)
+        add_jobs(sched, settings)
+        sched.start()
+        log.info("in-process scheduler started (WXCAM_RUN_SCHEDULER)")
+    try:
+        yield
+    finally:
+        if sched is not None:
+            sched.shutdown(wait=False)
+            log.info("in-process scheduler stopped")
+
+
+def _env_truthy(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+app = FastAPI(title="wxcam-timelapse", version="0.1", lifespan=lifespan)
 
 
 def _still_cameras() -> list[Camera]:

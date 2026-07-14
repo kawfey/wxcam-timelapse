@@ -7,6 +7,7 @@ CSV stays a drop-in from the dashboard.
 from __future__ import annotations
 
 import csv
+import os
 import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -120,6 +121,13 @@ def capturable_cameras(cameras: list[Camera] | None = None) -> list[Camera]:
     return [c for c in cameras if c.type == "still_image" and c.status == "live"]
 
 
+def _env(name: str, default):
+    """Env override, treating unset/empty as absent. Lets the Home Assistant
+    add-on (and any container deploy) inject config without rewriting files."""
+    v = os.environ.get(name)
+    return v if v not in (None, "") else default
+
+
 def load_settings(path: Path | None = None) -> Settings:
     path = path or (CONFIG_DIR / "settings.toml")
     with path.open("rb") as f:
@@ -130,18 +138,19 @@ def load_settings(path: Path | None = None) -> Settings:
     roll = raw.get("rollup", {})
     gen = raw.get("general", {})
 
-    data_dir = Path(gen.get("data_dir", "data"))
+    # Precedence for the add-on-tunable knobs: env var > settings.toml > default.
+    data_dir = Path(str(_env("WXCAM_DATA_DIR", gen.get("data_dir", "data"))))
     if not data_dir.is_absolute():
         data_dir = REPO_ROOT / data_dir
 
     return Settings(
-        interval_s=int(cap.get("interval_s", 60)),
+        interval_s=int(_env("WXCAM_INTERVAL_S", cap.get("interval_s", 60))),
         cache_bust=bool(cap.get("cache_bust", True)),
         dedup_identical=bool(cap.get("dedup_identical", True)),
-        retain_hours=int(ret.get("retain_hours", 48)),
-        retain_days=int(ret.get("retain_days", 30)),
+        retain_hours=int(_env("WXCAM_RETAIN_HOURS", ret.get("retain_hours", 48))),
+        retain_days=int(_env("WXCAM_RETAIN_DAYS", ret.get("retain_days", 30))),
         rollup_fps=int(roll.get("fps", 60)),
         rollup_time=str(roll.get("rollup_time", "00:05")),
-        timezone=str(gen.get("timezone", "America/Chicago")),
+        timezone=str(_env("WXCAM_TIMEZONE", gen.get("timezone", "America/Chicago"))),
         data_dir=data_dir,
     )
